@@ -1,59 +1,46 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import Sidebar from '../Components/Sidebar'
-import { MdOutlineAccountCircle } from "react-icons/md";
 import { BiSend } from "react-icons/bi";
-import { GoLightBulb } from "react-icons/go";
-import { MdDraw } from "react-icons/md";
-import { MdOutlineExplore } from "react-icons/md";
 import { IoIosMenu } from 'react-icons/io';
-import Drawer from '@mui/material/Drawer';
 import SideDrawer from '../Components/SideDrawer';
-import { ChatContext, ChatsContext } from '../Contexts/Contexts';
+import { AuthContext, ChatsContext } from '../Contexts/Contexts';
 import UserChatComponent from '../Components/UserChatComponent';
 import ModelChatComponent from '../Components/ModelChatComponent';
-import { IconButton } from '@mui/material'
+import { Avatar, Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material'
+import { auth } from '../Firebase/firebase';
+import { FiLogOut } from 'react-icons/fi';
+import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import InitialHomeComponent from '../Components/InitialHomeComponent';
+import { GrAdd } from 'react-icons/gr';
 
 
 
 
 
 
-const items = [
-  {
-    title: 'Find flights and weather for an upcoming trip'
-  },
-  {
-    title: 'Help me compare these college majors'
-  },
-  {
-    title: 'Give me ways to add certain foods to my diet'
-  },
-  {
-    title: 'Ideas to surprise a friend on their birthday'
-  },
-]
 
 
-const Card = ({ title, icon, onclick }) => {
-  return (
-    <div onClick={onclick} className='p-3 flex flex-col justify-between h-52  rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-blue-100' >
-      <p className='text-lg' >{title}</p>
-      <div className='self-end rounded-full bg-white p-2'>
-        {
-          icon
-        }
-      </div>
-    </div>
 
-  )
-}
+
 
 
 const HomeScreen = () => {
+  const user = useContext(AuthContext);
   const [isDrawerOpen, openDrawer] = useState(false);
   const [Prompt, ChangePrompt] = useState('');
   const chatsProvider = useContext(ChatsContext);
   const ref = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const navigate = useNavigate()
+
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
 
   const handlePromptChange = (e) => {
@@ -64,15 +51,23 @@ const HomeScreen = () => {
   const GenerateContent = async () => {
     ChangePrompt('');
 
-    await chatsProvider.addChat(Prompt);
+    await chatsProvider.addChat(Prompt, user);
+
 
 
 
   }
 
-  const handleCardTap = (text) => {
-    ChangePrompt(text);
+
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    navigate('/');
+
+
   }
+
+
 
   useEffect(() => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,22 +83,57 @@ const HomeScreen = () => {
       <div className=' backdrop-blur-md flex px-1 justify-between items-center h-16 bg-transparent absolute right-0 left-0 sm:px-4' >
         <div className='text-xl sm:text-2xl md:text-2xl lg:text-2xl  flex items-center bg-transparent'>
           <div className='flex lg:hidden '>
-            <IconButton onClick={() => {
-              openDrawer(true);
-            }}>
+            <IconButton onClick={() => { openDrawer(true); }}>
               <IoIosMenu size={25} />
-
             </IconButton>
-
-
           </div>
-
           &nbsp;
           Gemini
         </div>
-        <MdOutlineAccountCircle style={{
-          fontSize: 30
-        }} />
+        <div className='flex '>
+          <div className='flex items-center space-x-3 lg:hidden  '>
+
+          <IconButton onClick={ ()=>{chatsProvider.setChats([]);chatsProvider.setConversationId('') }} >
+          <GrAdd  />
+          </IconButton>
+          <IconButton onClick={handleClick}>
+            <Avatar alt="M" src={user.photoURL} />
+          </IconButton>
+          
+            
+            
+          </div>
+          
+        </div>
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose} MenuListProps={{ 'aria-labelledby': 'basic-button', }} >
+          <br />
+          <div className='flex flex-row px-4 items-center'  >
+            <Avatar className='avatar' src={user.photoURL} />
+            &nbsp;
+            &nbsp;
+            <div  >
+              <div className='font-semibold' >
+                {user.displayName}
+              </div>
+              <div id='useremail'>
+                {user.email}
+              </div>
+            </div>
+
+          </div>
+          <br />
+          <Divider />
+
+          <MenuItem onClick={async () => await handleSignOut()}>
+
+            <ListItemIcon>
+              <FiLogOut />
+            </ListItemIcon>
+            <ListItemText>Logout</ListItemText>
+
+          </MenuItem>
+
+        </Menu>
 
       </div>
 
@@ -130,31 +160,16 @@ const HomeScreen = () => {
                 })
               }
               <div ref={ref}></div>
-
-
-
             </>
-            :
-            <>
-              <span className='text-3xl  font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text  xl:text-5xl font-sans sm:text-3xl md:text-4xl lg:text-5xl'  >Hello, Maonj</span>
-              <p className='text-3xl xl:text-5xl font-bold text-gray-300 sm:text-3xl md:text-4xl lg:text-5xl' >How can I Help you Today ?</p>
-              <br />
-              <br />
-              <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-col-3 lg:grid-cols-4 xl:grid-cols-4 justify-center'  >
-                <Card icon={<GoLightBulb size={28} />} title={items[0].title} onclick={() => (handleCardTap(items[0].title))} />
-                <Card icon={<MdDraw size={28} />} title={items[1].title} onclick={() => (handleCardTap(items[1].title))} />
-                <Card icon={<MdOutlineExplore size={28} />} title={items[2].title} onclick={() => (handleCardTap(items[2].title))} />
-                <Card icon={<MdOutlineExplore size={28} />} title={items[3].title} onclick={() => (handleCardTap(items[3].title))} />
-              </div>
+            : <InitialHomeComponent ChangePrompt={ChangePrompt} />
 
-            </>
         }
         {/* ${chatsProvider.chats.length > 0 ? 'max-w-[600px]' : 'max-w-[900px]'} */}
         <div className='absolute bottom-0 w-full  h-20 backdrop-blur-md'>
           <div className={`box-border absolute bottom-4   flex flex-row items-center w-[90%] max-w-[900px]  justify-between rounded-full  h-16 bg-slate-100 px-4 `}>
 
             <input type="text" value={Prompt} onChange={handlePromptChange} placeholder='Enter A Prompt Here' className='w-full h-full bg-transparent outline-none focus:outline-none ' />
-            <IconButton onClick={GenerateContent} disabled={Prompt==='' }>
+            <IconButton onClick={GenerateContent} disabled={Prompt === '' || (chatsProvider.chats.length > 0 ? chatsProvider.chats[chatsProvider.chats.length - 1].parts[0].text === '' : false)}>
               <BiSend size={22} />
 
             </IconButton>

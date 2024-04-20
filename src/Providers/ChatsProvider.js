@@ -1,24 +1,47 @@
-import React, { useEffect, useState } from 'react'
-import { ChatsContext } from '../Contexts/Contexts';
+import React, { useContext, useEffect, useState } from 'react'
+import { AuthContext, ChatsContext, ConversationsContext } from '../Contexts/Contexts';
 import { GoogleGenerativeAI, } from '@google/generative-ai';
+import { CloudConversations } from '../Firebase/CloudChats';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../Firebase/firebase';
+
+
 
 const genAi = new GoogleGenerativeAI('AIzaSyC_u5hQojjhykG8Y_i42JyXJtv8deLBKoY');
 const model = genAi.getGenerativeModel({ model: 'gemini-pro' });
 
 const ChatsProvider = ({ children }) => {
-    const [chats, updateChats] = useState([]);
+    const [chats, setChats] = useState([]);
+    const user=useContext(AuthContext)
+    const [ConversationsList, ChangeConversationsList] = useState([]);
+    const [ConversationId, setConversationId] = useState([]);
 
 
     useEffect(() => {
-        console.log(chats);
-    }, [chats])
+
+        onAuthStateChanged(auth,(user)=>{
+            if(user){
+                CloudConversations.GetChats(ChangeConversationsList,user);
+
+            }
+            
+        
+
+        });
+
+        
+
+        
+
+        
+    }, [])
 
 
     const addChat = async (Prompt) => {
 
-        updateChats((Updatedchats) => [...Updatedchats, { role: 'user', parts: [{ text: Prompt }] }]);
+        setChats((Updatedchats) => [...Updatedchats, { role: 'user', parts: [{ text: Prompt }] }]);
 
-        updateChats((Updatedchats) => [...Updatedchats, { role: 'model', parts: [{ text: '' }] }]);
+        setChats((Updatedchats) => [...Updatedchats, { role: 'model', parts: [{ text: '' }] }]);
 
 
 
@@ -41,27 +64,57 @@ const ChatsProvider = ({ children }) => {
         
         for await (const chunk of result.stream) {
             const chunkText = chunk.text();
-            console.log(chunkText);
+          
             text += chunkText;
-            updateChats((Updatedchats) => {
+            setChats((Updatedchats) => {
                 const newChats = Updatedchats;
                 newChats.pop();
                 newChats.push({ role: 'model', parts: [{ text: text}] });
                 return [...newChats];
     
             });
+
+
         }
+
+
+      
         // result.response.text()
+        setChats((Updatedchats)=>{
+            
+            if(Updatedchats.length-2 > 0){
+                CloudConversations.AddChat(ConversationId,Updatedchats,user);
+
+            }else{
+                CloudConversations.AddNewConversation(Updatedchats,setConversationId, ChangeConversationsList);
+            }
+            
+           
+            return [...Updatedchats];
+
+        })
+
+        
+        
 
         
 
-        console.log(chats);
+
+        
+        
+
+      
+
+        
+
+        
 
     }
 
 
     return (
-        <ChatsContext.Provider value={{ chats, addChat }}>
+  
+        <ChatsContext.Provider value={{ chats, addChat,ConversationsList,setChats,ConversationId,setConversationId}}>
             {
                 children
             }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import '../index.css'
 import { IoIosMenu } from "react-icons/io";
 import { GrAdd } from "react-icons/gr";
@@ -6,25 +6,31 @@ import { FiSettings } from "react-icons/fi";
 import { VscHistory } from "react-icons/vsc";
 import { GoQuestion } from "react-icons/go";
 import { IconButton } from './IconButton';
+import { ChatsContext } from '../Contexts/Contexts';
+import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { BsChatLeft } from "react-icons/bs";
+import { ListItemComponent } from './ListItemComponent';
+import RecentConverastionComponent from './RecentConverastionComponent';
 
-const ListItem = ({ component, title }) => {
-  return (
-    <div className='flex flex-row items-center px-2 gap-2 rounded-md w-full hover:bg-slate-200'>
-      {
-        component
-      }
-      <div className='text-sm font-semibold'>
-        {
-          title
-        }
-      </div>
+// const DrawerItem=({icon,title,onclick})=>{
+//   return (
+//     <ListItem  disablePadding  sx={{ overflow:'hidden', textOverflow:'ellipsis', wordBreak:'keep-all', padding:0,whiteSpace:'nowrap', width:'100%'}  }>
+//           <ListItemButton>
+//             <ListItemIcon>
+//               <IconButton icon={icon} onclick={onclick} />
+//             </ListItemIcon>
+//             <ListItemText primary={title} sx={{}}li  />
+//           </ListItemButton>
+//         </ListItem>
+//   )
 
-    </div>
-  )
-}
+
+// }
 
 const Sidebar = () => {
   const [isSidebarOpen, openSideBar] = useState(false);
+  const chatContext = useContext(ChatsContext);
+
 
 
   return (
@@ -32,11 +38,11 @@ const Sidebar = () => {
       <div>
         <IconButton icon={<IoIosMenu size={25} />} onclick={() => {
           openSideBar(!isSidebarOpen);
-          console.log(isSidebarOpen);
+         
         }} />
         <br />
         <br />
-        <div className={`flex flex-row items-center gap-3 rounded-full  ${isSidebarOpen ? 'py-2 px-3' : 'p-4'} bg-slate-200 `}>
+        <div onClick={() => { chatContext.setChats([]);ChatsContext.setConversationId('')  }} className={`flex flex-row items-center gap-3 rounded-full  ${isSidebarOpen ? 'py-2 px-3' : 'p-4'} bg-slate-200 `}>
           <GrAdd style={{
             size: 45
           }} />
@@ -50,15 +56,24 @@ const Sidebar = () => {
 
         </div>
       </div>
+      {
+        isSidebarOpen && <RecentConverastionComponent/>
+       
+        
+        
+
+      }
+
+
       <div className={`flex flex-col ${isSidebarOpen ? 'items-stretch' : 'items-center'}  w-full`}>
 
         {
           isSidebarOpen
             ?
             <div>
-              <ListItem component={<IconButton icon={<FiSettings size={20} />} />} title={'Settings'} />
-              <ListItem component={<IconButton icon={<VscHistory size={20} />} />} title={'Activity'} />
-              <ListItem component={<IconButton icon={<GoQuestion size={20} />} />} title={'Help'} />
+              <ListItemComponent component={<IconButton icon={<FiSettings size={20} />} />} title={'Settings'} />
+              <ListItemComponent component={<IconButton icon={<VscHistory size={20} />} />} title={'Activity'} />
+              <ListItemComponent component={<IconButton icon={<GoQuestion size={20} />} />} title={'Help'} />
             </div>
 
 

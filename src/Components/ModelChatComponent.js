@@ -21,7 +21,6 @@ const ModelChatComponent = ({ Ans }) => {
     }
 
     const handleOnSpeech=()=>{
-        console.log(speechstate);
 
 
 
