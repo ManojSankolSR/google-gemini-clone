@@ -121,16 +121,11 @@ const HomeScreen = () => {
                   }
 
                   else {
-
                     return (
 
                       <ModelChatComponent Ans={e.parts[0].text} />
 
                     )
-
-
-
-
                   }
                 })
               }

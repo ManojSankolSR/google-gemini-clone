@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { MdOutlineAccountCircle } from 'react-icons/md'
 import { IoShareSocialOutline } from "react-icons/io5";
 import { Avatar, IconButton } from '@mui/material'
@@ -8,6 +8,7 @@ import { RxSpeakerLoud } from "react-icons/rx";
 import { CiPause1 } from "react-icons/ci";
 
 const ModelChatComponent = ({ Ans }) => {
+    const [speechstate,ChangeSpeechState]=useState('none');
 
     const handleOnCopy = async () => {
         await navigator.clipboard.writeText(Ans);
@@ -20,26 +21,44 @@ const ModelChatComponent = ({ Ans }) => {
     }
 
     const handleOnSpeech=()=>{
+        console.log(speechstate);
+
+
+
 
         
         
-        if(window.speechSynthesis.speaking){
+        if(speechstate==='speaking'){
             window.speechSynthesis.pause();
-            console.log('paused');
+            ChangeSpeechState('paused');
+           
         }
-        else if(window.speechSynthesis.paused){
+        else if(speechstate==='paused'){
             window.speechSynthesis.resume();
-            console.log('resumed');
+            ChangeSpeechState('speaking');
+         
+            
         }
         else{
             const value=new SpeechSynthesisUtterance(Ans);
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(value);
-            console.log('new');
+           
+
+            value.onstart=()=>{
+                ChangeSpeechState('speaking');
+            }
+
+            value.onend=()=>{
+                ChangeSpeechState('');
+            }
+            
 
         }
         
     }
+
+
 
 
     return (
@@ -83,7 +102,7 @@ const ModelChatComponent = ({ Ans }) => {
             <div className=' hidden sm:flex'>
                 <IconButton onClick={handleOnSpeech} >
                     {
-                        window.speechSynthesis.speaking ? <CiPause1 /> : <RxSpeakerLoud size={25} />
+                        speechstate==='speaking' ? <CiPause1 /> : <RxSpeakerLoud size={25} />
                     }
                     
                 </IconButton>
