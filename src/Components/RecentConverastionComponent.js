@@ -11,10 +11,11 @@ const RecentConverastionComponent = () => {
 
     return (
         <>
+            
+            <div className='h-[100%] w-full  overflow-y-auto'>
             <p className='font-semibold pl-3 pt-3 pb-1'>
                 Recent
             </p>
-            <div className='h-[100%] w-full  overflow-y-auto'>
 
 
 
