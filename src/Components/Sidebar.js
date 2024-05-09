@@ -42,7 +42,7 @@ const Sidebar = () => {
         }} />
         <br />
         <br />
-        <div onClick={() => { chatContext.setChats([]);chatContext.setConversationId('')  }} className={`flex flex-row items-center gap-3 rounded-full  ${isSidebarOpen ? 'py-2 px-3' : 'p-4'} bg-slate-200 `}>
+        <div onClick={() => { chatContext.setChats([]);chatContext.setConversationId('')  }} className={`flex flex-row items-center gap-3 rounded-full cursor-pointer  ${isSidebarOpen ? 'py-2 px-3' : 'p-4'} bg-slate-200 `}>
           <GrAdd style={{
             size: 45
           }} />

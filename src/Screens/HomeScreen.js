@@ -78,7 +78,7 @@ const HomeScreen = () => {
 
 
   return (
-    <div className='box-border flex-1 relative h-screen  ' >
+    <div className='box-border flex-1 relative h-dvh  ' >
       <SideDrawer isDrawerOpen={isDrawerOpen} onDrawerClose={openDrawer} />
       <div className=' backdrop-blur-md  flex px-1  justify-between items-center h-16 bg-transparent absolute right-0 left-0 sm:px-4' >
         <div className='text-xl sm:text-2xl  md:text-2xl lg:text-2xl  flex items-center bg-transparent'>

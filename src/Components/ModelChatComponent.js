@@ -6,9 +6,16 @@ import { MdContentCopy } from "react-icons/md";
 import { Skeleton } from '@mui/material';
 import { RxSpeakerLoud } from "react-icons/rx";
 import { CiPause1 } from "react-icons/ci";
+import { marked } from 'marked';
+import TurndownService from 'turndown';
+
 
 const ModelChatComponent = ({ Ans }) => {
     const [speechstate,ChangeSpeechState]=useState('none');
+    const html = marked(Ans);
+    const newstrr=html.replace(/<p>(.*?)<\/strong>/g, '<p>$1</strong><br/>');
+    // .replace(/<\/li>/g, '</li><br/>').replace(/<\/li><li>/g, '&nbsp;&nbsp;&nbsp;&nbsp;</li><li>');
+
 
     const handleOnCopy = async () => {
         await navigator.clipboard.writeText(Ans);
@@ -75,7 +82,9 @@ const ModelChatComponent = ({ Ans }) => {
                             <Skeleton className='rounded-md' variant='rectangular' height={20} width={'70%'} />
                             <Skeleton className='rounded-md' variant='rectangular' height={20} width={'40%'} />
                         </div>
-                        : Ans
+                        : 
+                        // newstrr
+                        <div dangerouslySetInnerHTML={{ __html:newstrr }} />
                 }
                 <br />
                 <div className='flex flex-row gap-x-2 justify-end'>
@@ -87,7 +96,9 @@ const ModelChatComponent = ({ Ans }) => {
                     </IconButton>
                     <div className=' flex sm:hidden'>
                         <IconButton onClick={handleOnSpeech} >
-                            <RxSpeakerLoud size={25} />
+                        {
+                        speechstate==='speaking' ? <CiPause1 /> : <RxSpeakerLoud size={25} />
+                    }
                         </IconButton>
 
                     </div>
